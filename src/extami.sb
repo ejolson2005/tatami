@@ -1,0 +1,62 @@
+' extami.sb
+'  EJO This source file is part one of a two-part entry.  The other
+'  EJO part is given by the C BASIC library code in exface.c
+'  EJO
+'  EJO This particular code was a work in progress that later resulted
+'  EJO in the program mixtami.sb which runs four times faster and takes
+'  EJO half the memory.
+'  EJO
+'  EJO The present code has been included to demonstrate the way minor
+'  EJO changes can result in noticable performance gains.  Note also
+'  EJO that the comments above tagged by my initials have not been
+'  EJO included in the line counts for the challenge.
+
+DECLARE SUB get_v ALIAS "get_v" LIB "ta"
+DECLARE SUB set_v ALIAS "set_v" LIB "ta"
+DECLARE SUB add_v ALIAS "add_v" LIB "ta"
+
+nMax = 100000000
+
+nMaxSqrt = INT(SQR(nMax))
+
+FUNCTION Tatami(s)
+  FOR i = 7 TO nMaxSqrt - 1 STEP 2
+    k2 = i + 3
+    k3 = i + i - 4
+    WHILE (k2 <= k3) AND ((i * k2) < nMax)
+      k4 = INT(nMax / i)
+      IF k3 < k4 THEN
+        k4 = k3
+      END IF
+      FOR j = k2 TO k4 STEP 2
+        add_v(i * j, 1)
+      NEXT
+      k2 += i + 1
+      k3 += i - 1
+    WEND
+  NEXT
+  FOR i = 8 TO nMaxSqrt - 1 STEP 2
+    k2 = i + 3
+    k3 = i + i - 4
+    WHILE (k2 <= k3) AND ((i * k2) < nMax)
+        k4 = INT(nMax / i)
+        IF k3 < k4 THEN
+          k4 = k3
+        END IF
+        FOR j = k2 TO k4
+          add_v(i * j, 1)
+        NEXT
+        k2 += i + 1
+        k3 += i - 1
+    WEND
+  NEXT
+  FOR i = 0 TO nMax - 1
+    IF get_v(i) = s THEN
+      Tatami = i
+      EXIT FUNCTION
+    END IF
+  NEXT
+END FUNCTION
+
+s = VAL(COMMAND())
+PRINT FORMAT("The smallest room size s for which T(s) = %d is %d\n", s, Tatami(s))

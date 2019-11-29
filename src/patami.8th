@@ -1,0 +1,74 @@
+100000000 constant N-MAX
+N-MAX n:sqrt n:int constant N-MAX-SQRT
+
+N-MAX b:new true b:writable constant v
+
+: swap+-  \ a b c f -- a (a+b+1) (a+c-1)
+  drop
+  swap 2 pick n:+ n:1+
+  swap 2 pick n:+ n:1- ;
+
+: l4  \ i k2 k3 k4 -- i k2 k3 k4
+  \ i k2 k3 k4 j
+  4 pick over n:*
+  v over b:@ n:1+ rot swap b:! 2drop ;
+
+: l3
+  \ i
+  dup 3 n:+             \ i k2=i+3
+  over dup n:+ 4 n:-    \ i k2 k3=i+i-4
+  repeat  \ i k2 k3
+    2dup n:> not 2over n:* N-MAX n:< and if
+      N-MAX n:1- 3 pick n:/ n:int     \  i k2 k3 k4
+      2dup n:< if
+        drop dup
+      then
+      ' l4 3 pick 2 pick loop   \ i k2 k3 k4
+      swap+-
+    else
+      break
+    then
+  again
+  2drop drop
+  2 step ;
+
+: l2  \ i k2 k3 k4 -- i k2 k3 k4
+  \ i k2 k3 k4 j
+  4 pick over n:*
+  v over b:@ n:1+ rot swap b:! 2drop
+  2 step ;
+
+: l1
+  \ i
+  dup 3 n:+             \ i k2=i+3
+  over dup n:+ 4 n:-    \ i k2 k3=i+i-4
+  repeat  \ i k2 k3
+    2dup n:> not 2over n:* N-MAX n:< and if
+      N-MAX n:1- 3 pick n:/ n:int     \  i k2 k3 k4
+      2dup n:< if
+        drop dup
+      then
+      ' l2 3 pick 2 pick loop   \ i k2 k3 k4
+      swap+-
+    else
+      break
+    then
+  again
+  2drop drop
+  2 step ;
+
+: tatami  \ n -- s
+  a:new
+  ( ' l1 7 N-MAX-SQRT n:1- loop ) t:task a:push
+  ( ' l3 8 N-MAX-SQRT n:1- loop ) t:task a:push
+  t:wait
+  v swap 1 a:close b:new b:search nip ;
+
+: app:main
+  200 tatami null? not if
+    "The smallest room size s for which T(s) = 200 is %d.\n" s:strfmt .
+  else
+    drop "Not found\n" .
+  then
+  bye ;
+  

@@ -1,0 +1,53 @@
+
+*PROCESS MARGINS(1,180) LIBS(SINGLE,STATIC);
+*PROCESS OPTIMIZE(3) DFT(REORDER);
+*PROCESS PP(MACRO);
+
+
+/* Based on Tatami.c written by jcyr on Raspberrypi.org forums */
+ tatami: proc options(main);
+   dcl N_MAX fixed bin(31) value(100000000);
+   dcl N_MAX_SQRT fixed bin(31) value(sqrt(N_MAX));
+
+   dcl v(0:N_MAX-1) fixed bin(8) unsigned ctl;
+
+   dcl (i, j, k2, k3, k4) fixed bin(31);
+
+   allocate v(0:N_MAX-1);
+
+   do i = 7 to N_MAX_SQRT - 1 by 2;
+     k2 = i + 3;
+     k3 = i + i - 4;
+     do while((k2 <= k3) & ((i * k2) < N_MAX));
+       k4 = (N_MAX - 1) / i;
+       if k3 < k4 then k4 = k3;
+       do j = k2 to k4 by 2;
+         v(i*j)+=1;
+       end;
+       k2 += i + 1;
+       k3 += i - 1;
+     end;
+   end;
+
+   do i = 8 to N_MAX_SQRT - 1 by 2;
+     k2 = i + 3;
+     k3 = i + i - 4;
+     do while((k2 <= k3) & ((i * k2) < N_MAX));
+       k4 = (N_MAX - 1) / i;
+       if k3 < k4 then k4 = k3;
+       do j = k2 to k4;
+         v(i*j)+=1;
+       end;
+       k2 += i + 1;
+       k3 += i - 1;
+     end;
+   end;
+
+   do i = 0 upthru N_MAX - 1;
+     if v(i) = 200 then leave;
+   end;
+
+   put skip list('The smallest room size s for which T(s) = 200 is:', i);
+
+   free v;
+ end tatami;

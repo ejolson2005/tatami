@@ -1,0 +1,43 @@
+' mixtati.sb
+'  EJO This source file is part one of a two-part entry.  The other
+'  EJO part is given by the C BASIC library code in mixface.c
+
+DECLARE SUB do_v    ALIAS "do_v"    LIB "ta"
+DECLARE SUB find_s  ALIAS "find_s"  LIB "ta"
+
+nMax = 100000000
+
+nMaxSqrt = INT(SQR(nMax))
+
+FUNCTION Tatami(s)
+  FOR i = 7 TO nMaxSqrt - 1 STEP 2
+    k2 = i + 3
+    k3 = i + i - 4
+    WHILE (k2 <= k3) AND ((i * k2) < nMax)
+      k4 = INT(nMax / i)
+      IF k3 < k4 THEN
+        k4 = k3
+      END IF
+      do_v(k2, k4, i)
+      k2 += i + 1
+      k3 += i - 1
+    WEND
+  NEXT
+  FOR i = 8 TO nMaxSqrt - 1 STEP 2
+    k2 = i + 3
+    k3 = i + i - 4
+    WHILE (k2 <= k3) AND ((i * k2) < nMax)
+      k4 = INT(nMax / i)
+      IF k3 < k4 THEN
+        k4 = k3
+      END IF
+      do_v(k2, k4, i)        
+      k2 += i + 1
+      k3 += i - 1
+    WEND
+  NEXT
+  Tatami = find_s(s)
+END FUNCTION
+
+s = VAL(COMMAND())
+PRINT FORMAT("The smallest room size s for which T(s) = %d is %d\n", s, Tatami(s))
